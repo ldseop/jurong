@@ -1,0 +1,56 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingBottom="10dp"
+    android:paddingLeft="10dp"
+    android:paddingRight="10dp"
+    android:paddingTop="10dp" >
+
+    <RelativeLayout
+        android:id="@+id/ctr_jr_title_bar"
+        android:layout_width="match_parent"
+        android:layout_height="50dp" >
+
+        <TextView
+            android:id="@+id/ctr_jr_title"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_centerVertical="true"
+            android:gravity="center_vertical"
+            android:text="节点名称"
+            android:textColor="@color/ssiotgreen"
+            android:textSize="18sp" />
+
+        <ImageView
+            android:id="@+id/ctr_jr_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:paddingBottom="3dp"
+            android:src="@drawable/online" />
+    </RelativeLayout>
+
+    <ImageView
+        android:id="@+id/ctr_jr_divider_bar"
+        android:layout_width="match_parent"
+        android:layout_height="1px"
+        android:layout_below="@id/ctr_jr_title_bar"
+        android:layout_centerVertical="true"
+        android:src="#fff39800" />
+    
+    <com.ssiot.jurong.view.MyGridView 
+        android:id="@+id/ctr_jr_grid"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:numColumns="4"
+        android:scrollbars="vertical"
+        android:stretchMode="columnWidth"
+        android:verticalSpacing="3dp"
+        android:layout_below="@id/ctr_jr_divider_bar">
+        
+    </com.ssiot.jurong.view.MyGridView>
+
+</RelativeLayout>

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>  
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"  
+    xmlns:jurong="http://schemas.android.com/apk/res/com.ssiot.jurong" 
+    android:layout_width="wrap_content"  
+    android:layout_height="wrap_content"
+    android:background="@drawable/ctr_device_bk"
+    >  
+
+    <TextView 
+        android:id="@+id/device_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:text="设备名称"
+        android:layout_centerHorizontal="true"/>
+    <ImageView 
+        android:id="@+id/device_img"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/device_title"
+        android:layout_centerHorizontal="true"
+        android:src="@drawable/ctr_air"
+        android:scaleType="centerInside"
+        android:clickable="false"
+        />
+    
+    <CheckBox 
+        android:id="@+id/device_toggle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/device_img"
+        android:layout_centerHorizontal="true"
+        android:button="@drawable/btn_check_select"
+        android:focusable="false"
+        android:checked="false"
+        android:clickable="false"
+        android:gravity="center"/>
+    
+<!--     <ImageButton -->
+<!--         android:id="@+id/icon_img"   -->
+<!--         android:layout_width="wrap_content"   -->
+<!--         android:layout_height="wrap_content"   -->
+<!--         android:layout_centerInParent="true" -->
+<!--         android:clickable="false" -->
+<!--         android:background="@null" -->
+<!--         android:paddingBottom="5dip"   -->
+<!--         android:paddingTop="5dip" />   -->
+<!--     <TextView    -->
+<!--         android:id="@+id/icon_text"   -->
+<!--         android:layout_width="wrap_content"   -->
+<!--         android:layout_height="wrap_content"      -->
+<!--         android:layout_below="@id/icon_img" -->
+<!--         android:layout_centerHorizontal="true" -->
+<!--         android:textSize="20dip"/>   -->
+  
+</RelativeLayout>  

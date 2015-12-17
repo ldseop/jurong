@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <declare-styleable name="CtrUIView">
+        <attr name="myjurongbk" format="reference" />
+        <attr name="myjurongtxt" format="reference" />
+    </declare-styleable>
+
+</resources>

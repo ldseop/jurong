@@ -1,0 +1,66 @@
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!--
+        Base application theme, dependent on API level. This theme is replaced
+        by AppBaseTheme from res/values-vXX/styles.xml on newer devices.
+    -->
+    <style name="AppBaseTheme" parent="Theme.AppCompat.Light">
+        <item name="actionBarStyle">@style/MyActionBarStyle</item>
+        <!--
+            Theme customizations available in newer API levels can go in
+            res/values-vXX/styles.xml, while customizations related to
+            backward-compatibility can go here.
+        -->
+    </style>
+    
+    <style name="loading_dialog" parent="android:style/Theme.Dialog">  
+        <item name="android:windowFrame">@null</item>
+        <item name="android:windowNoTitle">true</item>
+<!--         <item name="android:windowBackground">@drawable/loading_bg</item>   -->
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+    </style>
+
+    <!-- Application theme. -->
+    <style name="AppTheme" parent="AppBaseTheme">
+        <!-- All customizations that are NOT specific to a particular API-level can go here. -->
+    </style>
+    
+    
+<!--     parent="@style/Widget.AppCompat.Light.ActionBar.Solid.Inverse"> -->
+    <style name="MyActionBarStyle" parent="@style/Widget.AppCompat.Light.ActionBar">
+        <item name="android:background">@drawable/ic_launcher</item>
+<!--         <item name="backgroundStacked">@drawable/tab_bg</item> -->
+<!-- 		<item name="colorPrimay">#ff087d25</item> -->
+		<!-- Support library compatibility -->
+        <item name="background">@drawable/ic_launcher</item>
+        <item name="backgroundStacked">@drawable/ic_launcher</item>
+<!--         <item name="title">@string/app_title</item> -->
+    </style>
+    
+    <style name="top_tab">
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:paddingTop">8dip</item>
+        <item name="android:paddingBottom">8dip</item>
+        <item name="android:paddingLeft">8dip</item>
+        <item name="android:paddingRight">8dip</item>
+        <item name="android:drawablePadding">0dip</item>
+        <item name="android:textColor">@color/radio_off</item>
+        <item name="android:button">@null</item>
+    </style>
+    
+    <style name="MyTxtLinear">
+        <item name="android:background">#ffe6e6e6</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:layout_margin">1px</item>
+        <item name="android:textSize">17sp</item>
+    </style>
+    
+    <style name="MyVideoTxtLinear">
+    </style>
+
+</resources>

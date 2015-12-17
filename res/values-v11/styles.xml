@@ -1,0 +1,13 @@
+<resources>
+    
+    <style name="AppTheme" parent="AppBaseTheme">
+    </style>
+
+<!--     估计只有系统的actionbar有用 -->
+    <style name="AppBaseTheme" parent="Theme.AppCompat.Light">
+        <item name="android:actionBarStyle">@style/MyActionBarStyle</item>
+    </style>
+    
+    
+
+</resources>

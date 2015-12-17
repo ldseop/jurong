@@ -1,0 +1,17 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:jurong="http://schemas.android.com/apk/res/com.ssiot.jurong"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+    
+    <include 
+        android:id="@+id/ctr_big_top"
+        layout="@layout/big_top"/>
+
+    <ListView
+        android:id="@+id/ctr_seperate_list" 
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/ctr_big_top"/>
+
+</RelativeLayout>
