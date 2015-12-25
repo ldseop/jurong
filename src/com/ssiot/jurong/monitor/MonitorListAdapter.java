@@ -238,16 +238,18 @@ public class MonitorListAdapter extends BaseAdapter{
         ((TextView) tmpDataView.findViewById(R.id.data_data)).setText("" + tmpNodeData._data + tmpNodeData._unit);
         ((ProgressBar) tmpDataView.findViewById(R.id.data_progress)).setProgress((int)(tmpNodeData._proportion * 100));
         int compareImg = R.drawable.compare_up;
+        ImageView compareView = (ImageView) tmpDataView.findViewById(R.id.data_compare);
         if ("上升".equals(tmpNodeData._compare)){
             compareImg = R.drawable.compare_up;
-            ((ImageView) tmpDataView.findViewById(R.id.data_compare)).setVisibility(View.VISIBLE);
+            compareView.setVisibility(View.VISIBLE);
         } else if ("下降".equals(tmpNodeData._compare)){
             compareImg = R.drawable.compare_down;
-            ((ImageView) tmpDataView.findViewById(R.id.data_compare)).setVisibility(View.VISIBLE);
+            compareView.setVisibility(View.VISIBLE);
         } else {//无  相等 null
-            ((ImageView) tmpDataView.findViewById(R.id.data_compare)).setVisibility(View.INVISIBLE);
+            compareView.setVisibility(View.INVISIBLE);
         }
-        ((ImageView) tmpDataView.findViewById(R.id.data_compare)).setImageResource(compareImg);
+        compareView.setImageResource(compareImg);
+        compareView.setVisibility(View.GONE);
     }
     
     private class ViewHolder{

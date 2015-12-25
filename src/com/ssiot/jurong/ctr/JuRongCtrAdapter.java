@@ -108,8 +108,8 @@ public class JuRongCtrAdapter extends BaseAdapter{
                 for (int i = 0 ; i < superModel._detailList.size(); i ++){
                     int k = superModel._detailList.get(i).DeviceNo;
                     if (k != 1 && k != 2 && k != 3 && k != 4){//TODO 具体的设备 问刘建群 TODO icon
-                        superModel._detailList.remove(i);
-                        i --;
+//                        superModel._detailList.remove(i);
+//                        i --;//添加8个莲蓬头 2015-12-25
                     }
                 }
                 devices = superModel._detailList;
@@ -159,6 +159,17 @@ public class JuRongCtrAdapter extends BaseAdapter{
                     case 4:
                         view.setImageResource(R.drawable.ctr_shadow);
                         view.setText("遮阳网控制");
+                        break;
+                    case 5:
+                    case 6:
+                    case 7:
+                    case 8:
+                    case 9:
+                    case 10:
+                    case 11:
+                    case 12:
+                        view.setImageResource(R.drawable.ctrl_shower);
+                        view.setText("莲蓬头" + (model.DeviceNo -4));
                         break;
                     default:
                         break;
