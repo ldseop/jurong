@@ -141,7 +141,7 @@
 				<string name="multi_play_activity_chn_prm">Please select begin channel</string>
 			
 				<!-- Real play activity -->
-				<string name="live_activity_title">实时视频监控</string>
+				<string name="live_activity_title">大厅实时视频监控</string>
 				<string name="live_activity_flash">Flash Ctrl</string>
 				<string name="live_activity_ptz">PTZ</string>
 				<string name="live_activity_start">StartRecord</string>

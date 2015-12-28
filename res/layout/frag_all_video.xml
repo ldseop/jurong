@@ -32,18 +32,18 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:drawableTop="@drawable/v_dahua_on"
-            android:layout_margin="50px"
+            android:layout_margin="20px"
             android:gravity="center_horizontal"
-            android:text="1区"/>
+            android:text="大棚1区"/>
         <TextView 
             android:id="@+id/vid_1_2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:drawableTop="@drawable/v_dahua_on"
-            android:layout_margin="50px"
+            android:layout_margin="20px"
             android:gravity="center_horizontal"
-            android:text="2区"/>
+            android:text="大棚2区"/>
     </LinearLayout>
     
     <TextView 
@@ -66,14 +66,14 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:drawableTop="@drawable/v_dahua_on"
-            android:layout_margin="50px"
+            android:layout_margin="20px"
             android:gravity="center_horizontal"
-            android:text="1区"/>
+            android:text="鱼塘1区"/>
         <TextView 
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_margin="50px"/>
+            android:layout_margin="20px"/>
     </LinearLayout>
     
     <TextView 
@@ -95,14 +95,53 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:drawableTop="@drawable/v_dahua_on"
-            android:layout_margin="50px"
+            android:layout_margin="20px"
             android:gravity="center_horizontal"
-            android:text="1区"/>
+            android:text="大田1区"/>
         <TextView 
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_margin="50px"/>
+            android:layout_margin="20px"/>
+    </LinearLayout>
+    
+    <TextView 
+        style="@style/MyTxtLinear"
+        android:id="@+id/areav_dating"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_below="@id/areav_line3"
+        android:text=" 大厅区"/>
+    <LinearLayout 
+        android:id="@+id/areav_line4"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/areav_dating"
+        android:orientation="horizontal">
+        <TextView 
+            android:id="@+id/vid_4_1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:drawableTop="@drawable/v_dahua_on"
+            android:layout_margin="20px"
+            android:gravity="center_horizontal"
+            android:text="大厅1区"/>
+        
+        <TextView 
+            android:id="@+id/vid_4_2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:drawableTop="@drawable/v_dahua_on"
+            android:layout_margin="20px"
+            android:gravity="center_horizontal"
+            android:text="大厅2区"/>
+<!--         <TextView  -->
+<!--             android:layout_width="match_parent" -->
+<!--             android:layout_height="wrap_content" -->
+<!--             android:layout_weight="1" -->
+<!--             android:layout_margin="20px"/> -->
     </LinearLayout>
     
 <!--     <ListView -->

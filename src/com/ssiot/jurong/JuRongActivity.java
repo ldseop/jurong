@@ -25,6 +25,7 @@ import android.preference.PreferenceManager;
 import com.ssiot.jurong.ctr.AllCtrFrag;
 import com.ssiot.jurong.monitor.AllMoniFrag;
 import com.ssiot.jurong.video.AllVideoFrag;
+import com.ssiot.jurong.video.VideoActivity;
 
 public class JuRongActivity extends ActionBarActivity implements MainFrag.FMainBtnClickListener ,AllVideoFrag.FAllVideoBtnClickListener{
     private static final String tag = "JuRong句容";
@@ -183,8 +184,14 @@ public class JuRongActivity extends ActionBarActivity implements MainFrag.FMainB
     }
 
     @Override
-    public void onFAllVideoBtnClick(int area, int index) {
+    public void onFAllVideoBtnClick(int area, int index, boolean isHall) {
         FragmentTransaction mTransaction = getSupportFragmentManager().beginTransaction();
+        if (isHall){
+            Intent intent = new Intent(JuRongActivity.this, VideoActivity.class);
+            intent.putExtra("datingvideoindex", index);
+            startActivity(intent);
+            return;
+        }
         switch (area) {
             case 1:
                 currentArea = 1;

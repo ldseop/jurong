@@ -36,6 +36,7 @@ import com.hikvision.netsdk.RealPlayCallBack;
 import com.ssiot.jurong.BaseFragment;
 import com.ssiot.jurong.JuRongActivity;
 import com.ssiot.jurong.R;
+import com.ssiot.jurong.Utils;
 import com.ssiot.jurong.monitor.AllMoniFrag;
 import com.ssiot.remote.data.DataAPI;
 import com.ssiot.remote.data.model.VLCVideoInfoModel;
@@ -67,14 +68,15 @@ public class HCLiveFrag extends BaseFragment{
     
     private boolean         m_bNeedDecode           = true;
     
-    private String mStrIp = "222.169.186.222";
-    private int mPort = 37781;
+    private String mStrIp = "221.131.87.240";
+    private int mPort = 8004;
     private String mStrUser = "admin";
-    private String mStrPwd = "754915497x";
+    private String mStrPwd = "js123456";
     
 //    private String videoRemark = "279";//TODO 写句容的视频remark
     private int currentArea = 1;
     private int videoIndex = 1;//1 or 2
+    private boolean isHall = false;
     
     private static final int MSG_SHOW_MSG = 1;
     private static final int MSG_SHOW_DEFAULT_MSG = 2;
@@ -103,6 +105,8 @@ public class HCLiveFrag extends BaseFragment{
 //        videoRemark = getArguments().getString("videoremark");
         videoIndex = getArguments().getInt("videoindex",1);
         currentArea = getArguments().getInt("currentArea");
+        isHall = getArguments().getBoolean("ishall", false);
+        
         initeSdk();
         PowerManager pm = (PowerManager) getActivity().getSystemService(Context.POWER_SERVICE);
         mWakeLock = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, tag);
@@ -116,6 +120,12 @@ public class HCLiveFrag extends BaseFragment{
         Log.v(TAG, "-----onCreateView-----");
         View v = inflater.inflate(R.layout.frag_single_hc_video, container, false);    
         m_osurfaceView = (SurfaceView) v.findViewById(R.id.hc_preview);
+        if (isHall){
+            RelativeLayout.LayoutParams rl = (RelativeLayout.LayoutParams) m_osurfaceView.getLayoutParams();
+            rl.height = Utils.dip2px(getActivity(), 240+30);//大厅view上没有title导致下面按钮大小不正常
+            m_osurfaceView.setLayoutParams(rl);
+        }
+        
         m_osurfaceView.getHolder().addCallback(callback);
         setBigTitle(v);
         RelativeLayout rLayout = (RelativeLayout) v.findViewById(R.id.ptzroot);
@@ -140,23 +150,43 @@ public class HCLiveFrag extends BaseFragment{
 //        headerView.setBackgroundResource(JuRongActivity.AREA_DRAWABLE_ID[JuRongActivity.currentArea - 1]);
         TextView t = (TextView) rootView.findViewById(R.id.big_title);
         if (null != t){
-            t.setText(JuRongActivity.AREATITLES[JuRongActivity.currentArea - 1]);
+            if (isHall){
+                t.setText("大厅");
+            } else {
+                t.setText(JuRongActivity.AREATITLES[JuRongActivity.currentArea - 1]);
+            }
         }
     }
     
-    private VLCVideoInfoModel getChosedVideoInfo(String areaids, int index){
+    private VLCVideoInfoModel getChosedVideoInfo(String areaids, int index, boolean isHall){//isHall 大厅
         List<VLCVideoInfoModel> videoInfos = DataAPI.GetVLCVideoMapInfoByAreaIds(areaids);
         ArrayList<VLCVideoInfoModel> models = new ArrayList<VLCVideoInfoModel>();
+        Log.v(tag, "---------------------"+(null != videoInfos) + " " + videoInfos.size());
         if (null != videoInfos){
-            for (VLCVideoInfoModel v : videoInfos){
-                if (isInList(AllMoniFrag.AllStaticNode[currentArea], v._remark)){
-                    models.add(v);
+            if (isHall){//大厅内的 特殊处理
+                for (VLCVideoInfoModel v : videoInfos){
+                    int remark = 0;
+                    try {
+                        remark = Integer.parseInt(v._remark);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    if (remark <= 0){
+                        models.add(v);
+                    }
+                }
+            } else {
+                for (VLCVideoInfoModel v : videoInfos){
+                    if (isInList(AllMoniFrag.AllStaticNode[currentArea-1], v._remark)){
+                        models.add(v);
+                    }
                 }
             }
+            
         }
         if (null != models && models.size() > 0){
             try {
-                return models.get(videoIndex -1);
+                return models.get(index -1);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -173,20 +203,21 @@ public class HCLiveFrag extends BaseFragment{
                 }
             }
         } catch (Exception e) {
+            e.printStackTrace();
             return false;
         }
         return false;
     }
     
     private boolean init(){//jingbo add
-        VLCVideoInfoModel v = getChosedVideoInfo("129", videoIndex);
+        VLCVideoInfoModel v = getChosedVideoInfo("129", videoIndex, isHall);
         if (null == v){
 //            return false;
             mHandler.sendEmptyMessage(MSG_SHOW_DEFAULT_MSG);
         } else {
             mStrIp = v._ip;
             try {
-                mPort = Integer.parseInt(v._port);
+                mPort = v._tcpport;
             } catch (Exception e) {
                 e.printStackTrace();
                 return false;
@@ -224,6 +255,7 @@ public class HCLiveFrag extends BaseFragment{
         int nPort = mPort;
         String strUser = mStrUser;
         String strPsd = mStrPwd;
+        Log.v(tag, "------loginDevice-" +mStrIp + mPort + mStrUser + mStrPwd);
         // call NET_DVR_Login_v30 to login on, port 8000 as default
         int iLogID = HCNetSDK.getInstance().NET_DVR_Login_V30(strIP, nPort, strUser, strPsd, m_oNetDvrDeviceInfoV30);
         if (iLogID < 0) {

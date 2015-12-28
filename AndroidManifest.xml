@@ -51,6 +51,11 @@
             android:label="@string/live_activity_title"
             android:screenOrientation="portrait" />
         
+        <activity
+            android:name=".video.VideoActivity"
+            android:label="@string/live_activity_title"
+            android:screenOrientation="portrait" />
+        
         <receiver
             android:name="com.ssiot.jurong.receiver.SsiotReceiver" >
             <intent-filter>

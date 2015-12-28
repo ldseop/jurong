@@ -36,13 +36,14 @@ public class AllVideoFrag extends BaseFragment{
     }
     
     private void findviews(View rootView){
-        final int[] ids  = {R.id.vid_1_1,R.id.vid_1_2, R.id.vid_2_1, R.id.vid_3_1};
+        final int[] ids  = {R.id.vid_1_1,R.id.vid_1_2, R.id.vid_2_1, R.id.vid_3_1 , R.id.vid_4_1, R.id.vid_4_2};
         View.OnClickListener cli= new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (null != mFAllVideoBtnClickListener){
                     int areaindex = 1;
                     int index = 1;
+                    boolean isHall = false;
                     switch (v.getId()) {
                         case R.id.vid_1_1:
                             areaindex = 1;
@@ -58,10 +59,18 @@ public class AllVideoFrag extends BaseFragment{
                         case R.id.vid_3_1:
                             areaindex = 3;
                             break;
+                        case R.id.vid_4_1:
+                            index =1;
+                            isHall = true;
+                            break;
+                        case R.id.vid_4_2:
+                            index =2;
+                            isHall = true;
+                            break;
                         default:
                             break;
                     }
-                    mFAllVideoBtnClickListener.onFAllVideoBtnClick(areaindex, index);
+                    mFAllVideoBtnClickListener.onFAllVideoBtnClick(areaindex, index, isHall);
                 }
             }
         };
@@ -104,6 +113,6 @@ public class AllVideoFrag extends BaseFragment{
     
     //回调接口，留给activity使用
     public interface FAllVideoBtnClickListener {  
-        void onFAllVideoBtnClick(int area, int index);
+        void onFAllVideoBtnClick(int area, int index, boolean isHall);
     }
 }
