@@ -30,6 +30,8 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/device_img"
         android:layout_centerHorizontal="true"
+        android:layout_alignLeft="@id/device_img"
+        android:layout_alignRight="@id/device_img"
         android:button="@drawable/btn_check_select"
         android:focusable="false"
         android:checked="false"

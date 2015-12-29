@@ -24,23 +24,23 @@
         android:clickable="false"
         />
     
-    <Switch 
-        android:id="@+id/device_toggle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="5dp"
-        android:layout_marginRight="5dp"
-        android:switchMinWidth="20dp"
-        android:minWidth="20dp"
-        android:layout_below="@id/device_img"
-        android:layout_centerHorizontal="true"
-        android:track="@drawable/switch_track_select"
-        android:thumb="@drawable/switch_thumb"
-        android:focusable="false"
-        android:clickable="false"
-        android:textOn=""
-        android:textOff=""
-        android:gravity="center"/>
+<!--     <Switch  -->
+<!--         android:id="@+id/device_toggle" -->
+<!--         android:layout_width="wrap_content" -->
+<!--         android:layout_height="wrap_content" -->
+<!--         android:layout_marginLeft="5dp" -->
+<!--         android:layout_marginRight="5dp" -->
+<!--         android:switchMinWidth="20dp" -->
+<!--         android:minWidth="20dp" -->
+<!--         android:layout_below="@id/device_img" -->
+<!--         android:layout_centerHorizontal="true" -->
+<!--         android:track="@drawable/switch_track_select" -->
+<!--         android:thumb="@drawable/switch_thumb" -->
+<!--         android:focusable="false" -->
+<!--         android:clickable="false" -->
+<!--         android:textOn="" -->
+<!--         android:textOff="" -->
+<!--         android:gravity="center"/> -->
 
 <!-- <ToggleButton -->
 <!--     android:id="@+id/device_toggle" -->
@@ -52,15 +52,18 @@
 <!--     android:gravity="center" -->
 <!--     /> -->
     
-<!--     <CheckBox  -->
-<!--         android:id="@+id/device_toggle" -->
-<!--         android:layout_width="wrap_content" -->
-<!--         android:layout_height="wrap_content" -->
-<!--         android:layout_below="@id/device_img" -->
-<!--         android:layout_centerHorizontal="true" -->
-<!--         android:button="@drawable/btn_check_select" -->
-<!--         android:focusable="false" -->
-<!--         android:gravity="center"/> -->
+    <CheckBox 
+        android:id="@+id/device_toggle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/device_img"
+        android:layout_centerHorizontal="true"
+        android:layout_alignLeft="@id/device_img"
+        android:layout_alignRight="@id/device_img"
+        android:button="@drawable/btn_check_select"
+        android:focusable="false"
+        android:clickable="false"
+        android:gravity="center"/>
     
     
 <!--     <ImageButton -->
