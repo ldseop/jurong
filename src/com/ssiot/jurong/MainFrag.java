@@ -4,9 +4,13 @@ package com.ssiot.jurong;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+
 
 public class MainFrag extends Fragment {
     private FMainBtnClickListener mFMainBtnClickListener;
@@ -19,6 +23,7 @@ public class MainFrag extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         // TODO Auto-generated method stub
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
         mFMainBtnClickListener = (FMainBtnClickListener) getActivity();
     }
 
@@ -82,6 +87,28 @@ public class MainFrag extends Fragment {
         btn_moni.setOnClickListener(listen);
         btn_ctr.setOnClickListener(listen);
         btn_video.setOnClickListener(listen);
+    }
+    
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        // TODO Auto-generated method stub
+        inflater.inflate(R.menu.menu_f_main, menu);
+    }
+    
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // TODO Auto-generated method stub
+        switch (item.getItemId()) {
+            case R.id.action_frag_main_setting:
+                if (null != mFMainBtnClickListener){
+                    mFMainBtnClickListener.onFMainBtnClick(7);
+                }
+                break;
+
+            default:
+                break;
+        }
+        return true;
     }
 
     public interface FMainBtnClickListener {
