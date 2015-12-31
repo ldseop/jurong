@@ -170,6 +170,14 @@ public class SingleCtrFrag extends BaseFragment{
             new Thread(new Runnable() {
                 @Override
                 public void run() {
+                    if (!Utils.isNetworkConnected(getActivity())){
+                        showToastMSG("无网络");
+                        return;
+                    }
+                    if ((!lastStatus) && (AllCtrFrag.shadowCloseWorking || AllCtrFrag.shadowOpenWorking)){
+                        showToastMSG("打开与收起不能同时执行,请先关闭另一个动作！");
+                        return;
+                    }
                     if (lastStatus) {
                         sendShowMyDlg("正在设置");
                         String ret = new AjaxGetNodesDataByUserkey().ControlDevice(

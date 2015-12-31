@@ -84,6 +84,8 @@ public class JuRongActivity extends ActionBarActivity implements MainFrag.FMainB
                         Intent i = new Intent(SettingFrag.ACTION_SSIOT_UPDATE);
                         i.putExtra("checkresult", 2);
                         sendBroadcast(i);
+                    } else {
+                        Toast.makeText(JuRongActivity.this, "本地版本高于服务器上版本", Toast.LENGTH_SHORT).show();
                     }
                     break;
                 case MSG_DOWNLOADING_PREOGRESS:

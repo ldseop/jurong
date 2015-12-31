@@ -62,6 +62,8 @@ public class AllCtrFrag extends BaseFragment{
     public static final int[] DaTianNode = {};
     public static final int[] YuTangNode = {341,342};
     public static final int[][] AllStaticNode = {DaPengNode, YuTangNode, DaTianNode};
+    public static boolean shadowOpenWorking = false;
+    public static boolean shadowCloseWorking = false;
     
     private static final int MSG_GETNODES_END = 1;
     public static final int MSG_GET_ONEIMAGE_END = 2;
@@ -257,6 +259,14 @@ public class AllCtrFrag extends BaseFragment{
             new Thread(new Runnable() {
                 @Override
                 public void run() {
+                    if (!Utils.isNetworkConnected(getActivity())){
+                        showToastMSG("无网络");
+                        return;
+                    }
+                    if ((!lastStatus) && (shadowCloseWorking || shadowOpenWorking)){
+                        showToastMSG("打开与收起不能同时执行,请先关闭另一个动作！");
+                        return;
+                    }
                     if (lastStatus) {
                         String ret = new AjaxGetNodesDataByUserkey().ControlDevice(
                                 sm._ControlNodeViewModel._uniqueid,

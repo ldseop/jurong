@@ -1,5 +1,6 @@
 package com.ssiot.jurong;
 
+import android.R.string;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -29,6 +30,7 @@ public class BaseFragment extends Fragment{
     private static final int MSG_SHOW_DLG = 104;
     private static final int MSG_DISMISS_DLG = 105;
     private static final int MSG_LONGTIME = 106;//要琼宝是原来的dialog
+    public static final int MSG_MSG = 107;
     private Handler baseHandler = new Handler(){
         public void handleMessage(android.os.Message msg) {
             switch (msg.what) {
@@ -50,11 +52,25 @@ public class BaseFragment extends Fragment{
                         mDialog.dismiss();
                     }
                     break;
+                case MSG_MSG:
+                    try {
+                        String str = (String) msg.obj;
+                        Toast.makeText(getActivity(), str, Toast.LENGTH_SHORT).show();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    break;
                 default:
                     break;
             }
         };
     };
+    
+    public void showToastMSG(String str){
+        Message msg = baseHandler.obtainMessage(MSG_MSG);
+        msg.obj = str;
+        baseHandler.sendMessage(msg);
+    }
     
     public boolean canGoback(){
         return false;

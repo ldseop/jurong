@@ -107,12 +107,31 @@ public class JuRongCtrAdapter extends BaseAdapter{
                 devices = superModel._detailList;//TODO
                 for (int i = 0 ; i < superModel._detailList.size(); i ++){
                     int k = superModel._detailList.get(i).DeviceNo;
-                    if (k != 1 && k != 2 && k != 3 && k != 4){//TODO 具体的设备 问刘建群 TODO icon
-//                        superModel._detailList.remove(i);
-//                        i --;//添加8个莲蓬头 2015-12-25
+                    if (k != 1 && k != 2 && k != 3 && k != 4 && k != 5 && k != 6){//TODO 具体的设备 问刘建群 TODO icon
+                        superModel._detailList.remove(i);
+                        i --;//
                     }
                 }
+                
+                //重新排序，将4和5对调,必须改supermodel！ for 遮阳网
+                List<ControlDeviceView3Model> v3ms = new ArrayList<ControlDeviceView3Model>();
+                int size =  superModel._detailList.size();
+                if (size > 5){
+                    for (int i = 0; i < size; i ++){
+                        int index = i;
+                        if (index == 3){
+                            v3ms.add(superModel._detailList.get(4));
+                        } else if (index == 4){
+                            v3ms.add(superModel._detailList.get(3));
+                        } else {
+                            v3ms.add(superModel._detailList.get(index));
+                        }
+                    }
+                    superModel._detailList = v3ms;
+                }
+                
                 devices = superModel._detailList;
+                
             } else if (isIn(AllCtrFrag.YuTangNode, nodeno)){//鱼塘的控制节点
                 devices = superModel._detailList;
             } else {
@@ -153,23 +172,29 @@ public class JuRongCtrAdapter extends BaseAdapter{
                         view.setText("风机2");
                         break;
                     case 3:
-                        view.setImageResource(R.drawable.ctr_water);
-                        view.setText("湿帘控制");
+                        view.setImageResource(R.drawable.ctrl_shower);
+                        view.setText("喷头");
                         break;
                     case 4:
                         view.setImageResource(R.drawable.ctr_shadow);
-                        view.setText("遮阳网控制");
+                        view.setText("遮阳网打开");
                         break;
                     case 5:
+                        view.setImageResource(R.drawable.ctr_water);
+                        view.setText("湿帘");
+                        break;
                     case 6:
+                        view.setImageResource(R.drawable.ctr_shadow_close);
+                        view.setText("遮阳网收起");
+                        break;
                     case 7:
                     case 8:
                     case 9:
                     case 10:
                     case 11:
                     case 12:
-                        view.setImageResource(R.drawable.ctrl_shower);
-                        view.setText("莲蓬头" + (model.DeviceNo -4));
+//                        view.setImageResource(R.drawable.ctrl_shower);
+//                        view.setText("莲蓬头" + (model.DeviceNo -4));
                         break;
                     default:
                         break;
@@ -196,7 +221,13 @@ public class JuRongCtrAdapter extends BaseAdapter{
 //            }
             final boolean checkStatus = isOn(model);
             view.setChecked(checkStatus);
-            if (checkStatus && leftOnTime(model) > 0){
+            if (nodeno == 343 && model.DeviceNo == 4){//遮阳网开的device
+                AllCtrFrag.shadowOpenWorking = checkStatus;
+            }
+            if (nodeno == 343 && model.DeviceNo == 6){//遮阳网收起的device
+                AllCtrFrag.shadowCloseWorking = checkStatus;
+            }
+            if (checkStatus && leftOnTime(model) > 0){//到时间后刷新下状态
                 uiHandler.sendEmptyMessageDelayed(AllCtrFrag.MSG_NOTIFY, leftOnTime(model) * 1000);
                 Log.v(tag, "-------leftontime:" + leftOnTime(model));
             }
