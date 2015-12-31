@@ -5,7 +5,13 @@
     android:background="#ffffffff"
     android:layout_height="match_parent" >
     
-
+    <ScrollView 
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <RelativeLayout 
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            
     <View 
         android:id="@+id/myVbottom"
         android:layout_width="match_parent"
@@ -143,7 +149,8 @@
 <!--             android:layout_weight="1" -->
 <!--             android:layout_margin="20px"/> -->
     </LinearLayout>
-    
+    </RelativeLayout>
+    </ScrollView>
 <!--     <ListView -->
 <!--         android:id="@+id/moni_seperate_listv"  -->
 <!--         android:layout_width="match_parent" -->
