@@ -18,7 +18,7 @@ import java.util.ArrayList;
 
 public class DbHelperSQL{
     private static final String tag = "DbHelperSQL";
-    public static SqlConnection connection;
+    private static SqlConnection connection;
     private static Statement stmt;
     private static PreparedStatement preStatement;
     private static Object objlock = new Object();
@@ -31,12 +31,10 @@ public class DbHelperSQL{
     //doc http://www.java3z.com/cwbwebhome/article/article2/21115.html?id=1922 使用离线的rowset 下载了sun的rowset包
     public static synchronized ResultSet Query(String SQLString) {//must close resultset!!! in outside
         synchronized (objlock) {
-            Log.v(tag, "1######Query:"+SQLString);
-          if (SQLString.length() > 3000){
-              Utils.setStringToFile(SQLString);
-          }
+            Log.v(tag, "1######Query_1:"+SQLString);
+            long time1 = SystemClock.uptimeMillis();
           try {
-              long time1 = SystemClock.uptimeMillis();
+              
               if (!connectIsOk(connection)){
                   connection = new SqlConnection(connectionString);
                   if (!connection.Open()){
@@ -131,7 +129,7 @@ public class DbHelperSQL{
                 e.printStackTrace();
             }
             Intent i = new Intent(SsiotReceiver.ACTION_SSIOT_MSG);
-            i.putExtra("showmsg", "查询数据出现问题");
+            i.putExtra("showmsg", "2Query查询数据出现问题:" + (SystemClock.uptimeMillis()-time1));
             ContextUtilApp.getInstance().sendBroadcast(i);
             return null;
         }
@@ -168,9 +166,40 @@ public class DbHelperSQL{
                 e.printStackTrace();
             }
             Intent i = new Intent(SsiotReceiver.ACTION_SSIOT_MSG);
-            i.putExtra("showmsg", "数据操作出现问题");
+            i.putExtra("showmsg", "数据操作出现问题" + (SystemClock.uptimeMillis()-time1));
             ContextUtilApp.getInstance().sendBroadcast(i);
-            Log.e(tag, "4#-------数据操作出现问题!!!!!");
+            return false;
+        }
+    }
+    
+    public static boolean Exists_a(String SQLString, ArrayList<String> cmdParams){
+        synchronized (objlock) {
+            Log.v(tag, "1#带参数Exist_a####" + SQLString);
+            long time1 = SystemClock.uptimeMillis();
+            try {
+                if (null == connection || connection.con == null || connection.con.isClosed()){
+                    connection = new SqlConnection(connectionString);
+                    connection.Open();
+                }
+                Log.v(tag, "2#--------open connection time " + (SystemClock.uptimeMillis()-time1) + !connection.con.isClosed());
+                preStatement = connection.prepareStatement(SQLString);
+                for(int i = 0;i< cmdParams.size();i ++){
+                    preStatement.setString((i+1), cmdParams.get(i));
+                }
+                preStatement.setQueryTimeout(9);
+                ResultSet rs = preStatement.executeQuery();
+                Log.v(tag, "3#-------------Exist_a参 cost time" + (SystemClock.uptimeMillis()-time1));
+                if (null != rs && rs.next()){
+                    rs.close();
+                    preStatement.close();
+                    return true;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            Intent i = new Intent(SsiotReceiver.ACTION_SSIOT_MSG);
+            i.putExtra("showmsg", "2Exist_a查询数据出现问题:" + (SystemClock.uptimeMillis()-time1));
+            ContextUtilApp.getInstance().sendBroadcast(i);
             return false;
         }
     }
@@ -179,8 +208,8 @@ public class DbHelperSQL{
                                                 // outside
         synchronized (objlock) {
             Log.v(tag, "1#####Update########" + SQLString);
+            long time1 = SystemClock.uptimeMillis();
             try {
-                long time1 = SystemClock.uptimeMillis();
                 if (!connectIsOk(connection)) {
                     connection = new SqlConnection(connectionString);
                     if (!connection.Open()){
@@ -206,7 +235,7 @@ public class DbHelperSQL{
                 e.printStackTrace();
             }
             Intent i = new Intent(SsiotReceiver.ACTION_SSIOT_MSG);
-            i.putExtra("showmsg", "Update数据出现问题");
+            i.putExtra("showmsg", "Update数据出现问题" +(SystemClock.uptimeMillis() - time1));
             ContextUtilApp.getInstance().sendBroadcast(i);
             return 0;
         }
@@ -215,8 +244,8 @@ public class DbHelperSQL{
     public static int Update_object(String SQLString, ArrayList<Object> cmdParams){
         synchronized (objlock) {
             Log.v(tag, "1#####Update_object####" + SQLString);
+            long time1 = SystemClock.uptimeMillis();
             try {
-                long time1 = SystemClock.uptimeMillis();
                 if (!connectIsOk(connection)){
                     connection = new SqlConnection(connectionString);
                     if (!connection.Open()){
@@ -282,6 +311,7 @@ public class DbHelperSQL{
                 e.printStackTrace();
                 return false;
             }
+            
 
             try {
                 String user = "angeliot";

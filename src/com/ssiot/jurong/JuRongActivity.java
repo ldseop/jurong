@@ -34,10 +34,13 @@ import android.preference.PreferenceManager;
 
 import com.ssiot.jurong.ctr.AllCtrFrag;
 import com.ssiot.jurong.monitor.AllMoniFrag;
+import com.ssiot.jurong.monitor.MoniDataAndChartFrag;
+import com.ssiot.jurong.monitor.MonitorListAdapter;
 import com.ssiot.jurong.video.AllVideoFrag;
 import com.ssiot.jurong.video.VideoActivity;
 import com.ssiot.jurong.UpdateManager;
 import com.ssiot.jurong.Utils;
+import com.ssiot.remote.data.model.view.NodeView2Model;
 
 import java.util.HashMap;
 
@@ -135,6 +138,9 @@ public class JuRongActivity extends ActionBarActivity implements MainFrag.FMainB
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.container, new MainFrag())
                     .commit();
+        } else {
+            savedInstanceState.remove("android:support:fragments");//解决getactivity为空的问题？？
+            Log.v(tag, "---------------fragcount&&&&&&&&&&:"+getSupportFragmentManager().getBackStackEntryCount());
         }
         
         if (mPref.getBoolean(Utils.PREF_AUTOUPDATE, true) == true){
@@ -225,10 +231,28 @@ public class JuRongActivity extends ActionBarActivity implements MainFrag.FMainB
                 break;
             case 4:
                 AllMoniFrag amFrag = new AllMoniFrag();
+//                final FragmentTransaction transaction = mTransaction;
                 mTransaction.replace(R.id.container, amFrag, TAG_HEADER_TAB);
                 Bundle bundle4 = new Bundle();
                 bundle4.putString("uniqueid", mUniqueID);
                 amFrag.setArguments(bundle4);
+                MonitorListAdapter.DetailListener mDetailListener = new MonitorListAdapter.DetailListener() {
+                    @Override
+                    public void showDetail(NodeView2Model n2m) {
+                        FragmentTransaction trans = getSupportFragmentManager().beginTransaction();
+                        Fragment fragment = new MoniDataAndChartFrag();
+                        Bundle bundle = new Bundle();
+                        bundle.putString("nodetitle", n2m._location);
+                        bundle.putBoolean("status", n2m._isonline.equals("在线"));
+                        bundle.putBoolean("isgprs", "GPRS".equalsIgnoreCase(n2m._onlinetype));
+                        bundle.putInt("nodeno", n2m._nodeno);
+                        fragment.setArguments(bundle);
+                        trans.replace(R.id.container, fragment);
+                        trans.addToBackStack(null);
+                        trans.commit();  
+                    }
+                };
+                amFrag.setDetailListener(mDetailListener);
                 mTransaction.addToBackStack(null);
                 mTransaction.commit();
                 break;

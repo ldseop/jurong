@@ -3,6 +3,8 @@ package com.ssiot.jurong.monitor;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -49,6 +51,7 @@ public class AllMoniFrag extends BaseFragment{
     ArrayList<NodeView2Model> mShowNodes = new ArrayList<NodeView2Model>();
     private DetailListener mDetailListener;
     private int currentIndex = 1;
+    FragmentManager fragmentManager;
     
     private static final int MSG_GETNODES_END = 1;
     public static final int MSG_GET_ONEIMAGE_END = 2;
@@ -97,6 +100,7 @@ public class AllMoniFrag extends BaseFragment{
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
         userKey = getArguments().getString("uniqueid");
+        fragmentManager = getChildFragmentManager();
     }
     
     @Override
@@ -251,6 +255,10 @@ public class AllMoniFrag extends BaseFragment{
                 break;
         }
         return true;
+    }
+    
+    public void setDetailListener(DetailListener lis){
+        mDetailListener = lis;
     }
     
     public void setClickListener(FAllMoniBtnClickListener listen){

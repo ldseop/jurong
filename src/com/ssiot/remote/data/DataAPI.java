@@ -19,6 +19,7 @@ import com.ssiot.remote.data.model.ControlActionInfoModel;
 import com.ssiot.remote.data.model.ControlLogModel;
 import com.ssiot.remote.data.model.LatestDataModel;
 import com.ssiot.remote.data.model.NodeModel;
+import com.ssiot.remote.data.model.SensorModel;
 import com.ssiot.remote.data.model.UserModel;
 import com.ssiot.remote.data.model.VLCVideoInfoModel;
 import com.ssiot.remote.data.model.view.ControlActionViewInfoModel;
@@ -391,6 +392,19 @@ public class DataAPI {
     // line 757
     public static List<SensorViewModel> GetSensorListByNodeNoString(String nodenos){
         return mSensorSevice.GetSensorListByNodeNoString(nodenos);
+    }
+    
+    //line766 根据传感器名称（ShortName）获取传感器对象
+    public static SensorModel GetSensorModelBySensorName(String shortName){
+        if (!TextUtils.isEmpty(shortName)){
+            try {
+                SensorModel sensorModel = mSensorSevice.GetModelList("ShortName='" + shortName + "'").get(0);
+                return sensorModel;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
     }
     
   /// 获取流水数据 in line 885

@@ -100,7 +100,7 @@ public class MonitorListAdapter extends BaseAdapter{
             holder = (ViewHolder) convertView.getTag();
         }
 //        holder.info_bar = (RelativeLayout) convertView.findViewById(R.id.moni_info_bar);//由于添加的view不容易删除，listview的重用会导致问题
-        NodeView2Model nodeModel = mDataList.get(position);
+        final NodeView2Model nodeModel = mDataList.get(position);
         holder.moni_title.setText(nodeModel._location);
         Log.v(tag, "----------image:"+nodeModel._image);
         if (!TextUtils.isEmpty(nodeModel._image)){
@@ -223,7 +223,7 @@ public class MonitorListAdapter extends BaseAdapter{
             @Override
             public void onClick(View v) {
                 if (null != mDetailListener){
-                    mDetailListener.showDetail(positionFinal);
+                    mDetailListener.showDetail(nodeModel);
                 }else {
                     Log.e(tag, "----DetailListener = null---!!!!!!!!!!!!!!!!!!");
                 }
@@ -272,7 +272,7 @@ public class MonitorListAdapter extends BaseAdapter{
     }
     
     public interface DetailListener{
-        public void showDetail(int position);
+        public void showDetail(NodeView2Model n2m);
     }
     
     private class GetImageThread extends Thread{

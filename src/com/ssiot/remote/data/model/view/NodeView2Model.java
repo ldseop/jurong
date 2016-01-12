@@ -23,4 +23,5 @@ public class NodeView2Model extends NodeModel{
     
     
     public boolean showAll = false;//jingbo仅仅是UI使用的
+    public String _detailTime = "";//jingbo 仅仅在MoniDataFrag用到的时间字符串
 }

@@ -19,7 +19,7 @@ public class User{
     public List<UserModel> GetModelList(String strWhere) {
         StringBuilder strSql = new StringBuilder();
         strSql.append("select * ");
-        strSql.append(" FROM iot_User ");
+        strSql.append(" FROM tbl_User ");
         if (strWhere.trim() != "") {
             strSql.append(" where " + strWhere);
         }

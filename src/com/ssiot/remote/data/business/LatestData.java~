@@ -108,23 +108,18 @@ public class LatestData{
                     + " left join( select vlc.URL,nod.UniqueID from Node as nod  inner join  VLCVideoInfo as vlc on nod.NodeNo=vlc.Remark " + strwhere + ")   as vlc on [ResultData1].UniqueID=vlc.UniqueID WHERE 1 = 1 GROUP BY SUBSTRING(CONVERT(VARCHAR(20), [CollectionTime] , 20) , 1 , 19), [ResultData1].[UniqueID] , [Channel] , [SensorNo],vlc.URL ) [ResultData2] JOIN [Node] ON [ResultData2].UniqueID = [Node].UniqueID JOIN [Sensor] ON [Sensor].SensorNo = [ResultData2].SensorNo ) [ResultData3] PIVOT ( MAX([ResultData3].DATA) FOR [ResultData3].[SensorList] IN ( " +
                     sb_columns2.toString()+" ) ) [SensorColumn]");
             if(orderby.contains("更新时间")){
-                sb_sql.insert(0, "SELECT TOP 99999999 * , ROW_NUMBER() OVER ( ORDER BY  " + orderby + 
-                        "  ) AS [RANK] from ( SELECT TOP 99999999 * , ROW_NUMBER() OVER ( PARTITION BY 节点编号 ORDER BY " + orderby + " ) AS [RANK2] FROM (");
-//                sb_sql.insert(0, "SELECT TOP 99999999 * , ROW_NUMBER() OVER ( ORDER BY "+orderby+" ) AS [RANK] FROM (");
+                sb_sql.insert(0, "SELECT TOP 99999999 * , ROW_NUMBER() OVER ( ORDER BY "+orderby+" ) AS [RANK] FROM (");
             } else {
-//                sb_sql.insert(0, "SELECT TOP 99999999 * , ROW_NUMBER() OVER ( ORDER BY 更新时间 ) AS [RANK] FROM (");
-                sb_sql.insert(0, "SELECT TOP 99999999 * , ROW_NUMBER() OVER ( ORDER BY 更新时间 desc ) AS [RANK] " +
-                		"FROM ( SELECT TOP 99999999 * , ROW_NUMBER() OVER ( PARTITION BY 节点编号 ORDER BY 更新时间 desc) AS [RANK2] FROM (");
+                sb_sql.insert(0, "SELECT TOP 99999999 * , ROW_NUMBER() OVER ( ORDER BY 更新时间 ) AS [RANK] FROM (");
             }
-//            sb_sql.append(" ) AS [Table] WHERE 1=1");
-            sb_sql.append(" ) AS [Table] WHERE 1=1 ) as t where t.[Rank2]=1");
+            sb_sql.append(" ) AS [Table] WHERE 1=1");
             if (orderby != null){
                 sb_sql.append(" ORDER BY "+orderby+" ");
             }
             if (beginindex != -1 && endindex != -1){
                 sb_sql.insert(0, "SELECT * FROM (");
-                sb_sql.append(" ) AS [Table3] WHERE 1=1");
-                sb_sql.append(" AND [Table3].[RANK] BETWEEN "+beginindex+" AND "+endindex+" ");
+                sb_sql.append(" ) AS [Table] WHERE 1=1");
+                sb_sql.append(" AND [Table].[RANK] BETWEEN "+beginindex+" AND "+endindex+" ");
             }
             rs = DbHelperSQL.Query(sb_sql.toString());
         }

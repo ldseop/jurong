@@ -113,14 +113,14 @@ public class LiveData{
                 }
             }
 
-
+//TODO let王桂华 改了 varchar变成datetime because mobileapi de timestr
             sb_sql.append(" SELECT SUBSTRING(CONVERT(VARCHAR(20), "+timecolumn+", 20), 1, "+timelength+") AS DATETIME , [UniqueID] , [Channel] , [SensorNo] , MAX("+datacolumn+") AS DATA " +
             		"FROM ( SELECT "+rangestr+" * FROM  "+tablename+" ORDER BY  "+indexid+" DESC ) ResultData1 WHERE 1 = 1 ");
 
             if (!TextUtils.isEmpty(begintime) && !TextUtils.isEmpty(endtime))
                 sb_sql.append(" AND "+timecolumn+" > '"+begintime+"' AND "+timecolumn+" < '"+endtime+"' ");
 
-            sb_sql.append(" GROUP BY SUBSTRING(CONVERT(VARCHAR(20), "+timecolumn+" , 20) , 1 , "+timelength+"),[UniqueID] , [Channel] , [SensorNo] ) [ResultData2] " +
+            sb_sql.append(" GROUP BY SUBSTRING(CONVERT(VARCHAR(20), "+timecolumn+" , 20) , 1 , "+timelength+") ,[UniqueID] , [Channel] , [SensorNo] ) [ResultData2] " +
             		"JOIN [Node] ON [ResultData2].UniqueID = [Node].UniqueID JOIN [Sensor] ON [Sensor].SensorNo = [ResultData2].SensorNo ) [ResultData3] ");
 
             sb_sql.append("PIVOT ( MAX([ResultData3].DATA) FOR [ResultData3].[SensorList] IN ( "+sb_columns2.toString()+" ) ) [SensorColumn]");

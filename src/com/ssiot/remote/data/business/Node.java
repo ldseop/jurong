@@ -4,6 +4,7 @@ import com.ssiot.remote.data.DbHelperSQL;
 import com.ssiot.remote.data.model.NodeModel;
 
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,6 +13,64 @@ public class Node{
     
     public Node(){
         
+    }
+    
+    public boolean Update(NodeModel model){
+        StringBuilder strSql = new StringBuilder();
+        strSql.append("update Node set ");
+        strSql.append("UniqueID=?,");
+        strSql.append("NodeNo=?,");
+        strSql.append("NodeCategoryNo=?,");
+        strSql.append("ProductID=?,");
+        strSql.append("GatewayNo=?,");
+        strSql.append("AreaID=?,");
+        strSql.append("Longitude=?,");
+        strSql.append("Latitude=?,");
+        strSql.append("Location=?,");
+        strSql.append("Image=?,");
+        strSql.append("OnlineType=?,");
+        strSql.append("Color=?,");
+        strSql.append("Expression=?,");
+        strSql.append("Remark=?");
+        strSql.append(" where NodeID=?");
+        
+        ArrayList<Object> params = new ArrayList<Object>();
+        params.add(model._uniqueid);
+        params.add(model._nodeno);
+        params.add(model._nodecategoryno);
+        params.add(model._productid);
+        params.add(model._gatewayno);
+        params.add(model._areaid);
+        params.add(model._longitude);
+        params.add(model._latitude);
+        params.add(model._location);
+        params.add(model._image);
+        params.add(model._onlinetype);
+        params.add(model._color);
+        params.add(model._expression);
+        params.add(model._remark);
+        params.add(model._nodeid);
+        
+        return DbHelperSQL.Update_object(strSql.toString(), params) > 0;
+    }
+    
+    public NodeModel GetModelByNodeNo(String nodeno){
+        StringBuilder strSql = new StringBuilder();
+        strSql.append("select  top 1 NodeID,UniqueID,NodeNo,NodeCategoryNo,ProductID,GatewayNo,AreaID,Longitude,Latitude,Location,Image,OnlineType,Color,Expression,Remark  from Node ");
+        strSql.append(" where NodeNo=" + nodeno);
+//        ArrayList<String> paramArray = new ArrayList<String>();
+//        paramArray.add("" + nodeno);
+        ResultSet ds = DbHelperSQL.Query(strSql.toString());
+        try {
+            if (ds != null && ds.next()) {
+                NodeModel model = DataRowToModel(ds);
+                ds.close();
+                return model;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
     
 //    public List<NodeModel> GetNodeList(String strwhere){
@@ -91,21 +150,24 @@ public class Node{
     private NodeModel DataRowToModel(ResultSet s){
         NodeModel m = new NodeModel();
         try {
-            m._nodeid = Integer.parseInt(s.getString("NodeID"));
+            m._nodeid = s.getInt("NodeID");
             m._uniqueid = s.getString("UniqueID");
             m._nodeno = Integer.parseInt(s.getString("NodeNo"));
             m._nodecategoryno = Integer.parseInt(s.getString("NodeCategoryNo"));
             m._productid = Integer.parseInt(s.getString("ProductID"));
             m._gatewayno = Integer.parseInt(s.getString("GatewayNo"));
             m._areaid = Integer.parseInt(s.getString("AreaID"));
-            //
-            
+            m._longitude = s.getFloat("Longitude");
+            m._latitude = s.getFloat("Latitude");
+            m._location = s.getString("Location");
+            m._image = s.getString("Image");
             m._onlinetype = s.getString("OnlineType");
             if (null != m._onlinetype){
                 m._onlinetype.trim();
             }
-            m._location = s.getString("Location");
-            m._image = s.getString("Image");
+            m._color = s.getString("Color");
+            m._expression = s.getString("Expression");
+            m._remark = s.getString("Remark");
             return m;
         } catch (Exception e) {
             e.printStackTrace();

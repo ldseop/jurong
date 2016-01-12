@@ -8,8 +8,8 @@ public class NodeModel{
     public int _productid;
     public int _gatewayno;
     public int _areaid;
-//    public decimal _longitude;
-//    public decimal _latitude;
+    public float _longitude;
+    public float _latitude;
     public String _location;
     public String _image;
     public String _onlinetype;

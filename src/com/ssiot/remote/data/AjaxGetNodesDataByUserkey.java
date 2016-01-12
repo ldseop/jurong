@@ -5,16 +5,23 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.ssiot.jurong.Utils;
+import com.ssiot.jurong.R.color;
 import com.ssiot.remote.data.business.ControlActionInfo;
 import com.ssiot.remote.data.business.ControlDevice;
 import com.ssiot.remote.data.business.ControlLog;
+import com.ssiot.remote.data.business.Node;
 import com.ssiot.remote.data.business.Sensor;
+import com.ssiot.remote.data.business.SensorModifyData;
+import com.ssiot.remote.data.business.SettingInfo1;
 import com.ssiot.remote.data.model.ControlActionInfoModel;
 import com.ssiot.remote.data.model.ControlDeviceModel;
 import com.ssiot.remote.data.model.ControlLogModel;
 import com.ssiot.remote.data.model.ControlNodeModel;
 import com.ssiot.remote.data.model.NodeModel;
 import com.ssiot.remote.data.model.SensorModel;
+import com.ssiot.remote.data.model.SensorModifyDataModel;
+import com.ssiot.remote.data.model.SettingInfo1Model;
+import com.ssiot.remote.data.model.SettingModel;
 import com.ssiot.remote.data.model.view.ControlActionViewModel;
 import com.ssiot.remote.data.model.view.ControlDeviceView2Model;
 import com.ssiot.remote.data.model.view.ControlDeviceView3Model;
@@ -24,6 +31,7 @@ import com.ssiot.remote.data.model.view.NodeView2Model;
 import com.ssiot.remote.data.model.view.NodeViewModel;
 import com.ssiot.remote.data.model.view.SensorViewModel;
 
+import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.text.Collator;
 import java.text.SimpleDateFormat;
@@ -34,12 +42,18 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+import javax.sql.RowSet;
+
 public class AjaxGetNodesDataByUserkey{
     private static final String tag = "AjaxGetNodesDataByUserkey";
     private Sensor sensorBll = new Sensor();
     private ControlActionInfo controlActionInfoBll = new ControlActionInfo();
     private ControlDevice controlDeviceBll = new ControlDevice();
     private ControlLog controllogbll = new ControlLog();
+    private SensorModifyData sensorModifyDataBll = new SensorModifyData();
+    private Node nodeBll = new Node();
+    private com.ssiot.remote.data.business.Setting settingbll = new com.ssiot.remote.data.business.Setting();
+    private SettingInfo1 settingInfoBll = new SettingInfo1();
     
     public List<NodeView2Model> GetAllNodesDataByUserkey(String userkey){
         try {
@@ -82,6 +96,278 @@ public class AjaxGetNodesDataByUserkey{
         }
         Log.e(tag, "------GetMapDataByUserkey---null !!!!!!!!!!!!");
         return new ArrayList<NodeViewModel>();
+    }
+    
+    //根据节点编号加载要素和通道
+    public HashMap<String,ArrayList<Integer>> GetSensorInfoByNodeNo(String nodeNo){//jingbo 做了修改，只返回一个列表！
+        HashMap<String,ArrayList<Integer>> hashList = new HashMap<String,ArrayList<Integer>>();
+        try {
+            List<SensorViewModel> sensorView_list2 = new ArrayList<SensorViewModel>();
+            if (!TextUtils.isEmpty(nodeNo)){
+                sensorView_list2 = DataAPI.GetSensorListByNodeNoString(nodeNo);
+                if (null != sensorView_list2 && sensorView_list2.size() > 0){
+                    for (SensorViewModel m : sensorView_list2){
+//                        strList.add(m._shortname + m._channel);
+                        if (!hashList.containsKey(m._shortname)){
+                            ArrayList<Integer> channels = new ArrayList<Integer>();
+                            channels.add(m._channel);
+                            hashList.put(m._shortname, channels);
+                        } else {
+                            hashList.get(m._shortname).add(m._channel);
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return hashList;
+    }
+    
+    //根据要素值（shortName）加载修正类型  
+    public String GetModifyTypeBySensorName(String sensorName){//jingbo: 原先是返回两个字符串
+        if (!TextUtils.isEmpty(sensorName)){
+            SensorModel sensorModel = DataAPI.GetSensorModelBySensorName(sensorName);
+            if (null != sensorModel){
+                List<SensorModifyDataModel> sensorModifyData_list = sensorModifyDataBll.GetModelList("SensorNo=" + sensorModel._sensorno);
+                boolean isBiaoDing = false;//标定
+                boolean isJiaoZhun = false;//校准
+                String respStr = "";
+                for (SensorModifyDataModel modifyData :sensorModifyData_list){
+                    switch (modifyData._type) {
+                        case 1:
+                            isBiaoDing = true;
+                            break;
+                        case 3:
+                            isJiaoZhun = true;
+                            break;
+                        default:
+                            break;
+                    }
+                    if (isBiaoDing && isJiaoZhun){
+                        break;
+                    }
+                }
+                if (isBiaoDing && isJiaoZhun){
+                    respStr = "1,3";
+                } else if (isBiaoDing){
+                    respStr = "1";
+                } else if (isJiaoZhun){
+                    respStr = "3";
+                }
+                return respStr;
+            }
+        }
+        return "";
+    }
+    
+    //根据要素与类型加载修正值
+    //nodeno节点编号(校准用)
+    //channel通道（校准用）
+    public ArrayList<String> GetModifyDataBySensorAndType(String sensorName, int modifyType, int nodeno, int channel){
+        if (TextUtils.isEmpty(sensorName) || modifyType < 0){
+            return null;
+        } else {
+            if (modifyType == 3){
+                List<SensorModifyDataModel> sensorModifyData_list = MobileAPI.GetSensorModifyDataListBySensorNameAndType(sensorName,modifyType);
+//                return sensorModifyData_list;
+                ArrayList<String> ret = new ArrayList<String>();
+                if (sensorModifyData_list != null){
+                    for (SensorModifyDataModel m : sensorModifyData_list){
+                        ret.add(m._id + ":" + m._remark);//jingbo 例如 5：标准液4
+                    }
+                }
+                return ret;
+            } else if (modifyType == 1){//校准
+                if (nodeno >= 0 &&  channel >= 0){
+                    //根据传感器名称获取传感器相关信息
+                    SensorModel sensorModel = DataAPI.GetSensorModelBySensorName(sensorName);
+                    //根据节点编号获取节点信息
+                    NodeModel nodeModel = DataAPI.GetNodeListByNodenolist(""+nodeno).get(0);
+                    //获取上次发送成功的校准信息
+                    SettingModel settingModel = MobileAPI.GetJiaoZhunBySensorNameAndType(nodeModel._uniqueid, modifyType, sensorModel._sensorno, channel);
+//                    return settingModel._value;
+                    ArrayList<String> ret = new ArrayList<String>();
+                    ret.add(""+settingModel._value);
+                    return ret;
+                }
+            }
+            return null;
+        }
+    }
+    
+    //发送保存校准数据
+    public boolean SendModify(int modifyId, int channel,int nodeNo2,String jzValue, String sensorShortName){//jzValue 就是value 校准值
+        try {
+            NodeModel nodeModel = nodeBll.GetModelByNodeNo(""+nodeNo2);//获取节点信息
+            if (modifyId == 0){//校准
+                
+              //根据传感器名称获取传感器对象
+                SensorModel sensorObj = DataAPI.GetSensorModelBySensorName(sensorShortName);
+                if (settingbll.Exists(nodeModel._uniqueid, 1, sensorObj._sensorno, channel)){//更新
+                    SettingModel settingModel_New = settingbll.GetSettigModel("UniqueID='" + nodeModel._uniqueid + 
+                            "' AND Type=1 and SettingMark=" + sensorObj._sensorno + " and Chanel=" + channel + " ORDER BY ID DESC");
+                    settingModel_New._other = 0;
+                    float temp_ft = Float.parseFloat(jzValue);
+                    settingModel_New._value = temp_ft;
+                    Timestamp dt = new Timestamp(System.currentTimeMillis());
+                    settingModel_New._timespan = (int) dt.getTime()/1000;//TODO
+                    settingModel_New._sendtime = dt;
+                    settingModel_New._sendstate = 0; 
+                    settingModel_New._resendcount = 0;
+                    return settingbll.Update(settingModel_New);
+                } else {//新增
+                    SettingModel  settingModel_Add = new SettingModel();
+                    settingModel_Add._uniqueid = nodeModel._uniqueid;
+                    settingModel_Add._type = 1;
+                    settingModel_Add._settingmark = sensorObj._sensorno;
+                    settingModel_Add._chanel = channel;
+                    settingModel_Add._other = 0; 
+                    float temp_ft = Float.parseFloat(jzValue);
+                    settingModel_Add._value = temp_ft;
+                    Timestamp dt = new Timestamp(System.currentTimeMillis());
+                    settingModel_Add._timespan = (int) dt.getTime()/1000;
+                    settingModel_Add._sendtime = dt;
+                    int count = settingbll.Add(settingModel_Add);
+                    return count > 0;
+                }
+            } else {//标定 sensorModifyData表里的ID值
+                SensorModifyDataModel sensorModifyDataModel = sensorModifyDataBll.GetModel(modifyId);
+                SettingModel settingModel = new SettingModel();
+                settingModel._settingmark = sensorModifyDataModel._sensorno;
+                settingModel._chanel = channel;
+                settingModel._other = sensorModifyDataModel._other;
+                settingModel._type = sensorModifyDataModel._type;
+                settingModel._uniqueid = nodeModel._uniqueid;
+                settingModel._value = (float)(sensorModifyDataModel._value);
+                Timestamp dt = new Timestamp(System.currentTimeMillis());
+                settingModel._timespan = (int) dt.getTime()/1000;
+                settingModel._sendtime = dt;
+                int count = settingbll.Add(settingModel);
+                return count > 0;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+    
+    //验证是否发送成功( 这种写法存在一定的风险：当多个人同时对这个点修改时可能出现反馈不准)
+    public int ModifyIsOK(int type_yz, int channel_yz, int nodeno_yz, String shortName_yz){
+        try {
+            if (!TextUtils.isEmpty(shortName_yz) && type_yz >= 0 && channel_yz >= 0 && nodeno_yz >= 0){
+                SensorModel sensorModel = DataAPI.GetSensorModelBySensorName(shortName_yz);
+                NodeModel nodeModel = DataAPI.GetNodeListByNodenolist(""+nodeno_yz).get(0);
+              //获取上次发送成功的校准信息
+                SettingModel settingModel = settingbll.GetSettigModel("UniqueID='" + nodeModel._uniqueid 
+                        + "' and Type=" + type_yz + " and SettingMark=" + sensorModel._sensorno + " and Chanel=" + channel_yz + " order by ID desc");
+                return settingModel._sendstate;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 3;
+    }
+    
+    //加载上报频率
+    public LoadSetting GetReportFrequency(String nodeNoSetting){
+        try {
+            //加载该节点信息
+            NodeModel nodeInfo = new NodeModel();
+            SettingInfo1Model settingInfoModel = new SettingInfo1Model();
+            String nodeUniqueId = "";
+            if (!TextUtils.isEmpty(nodeNoSetting)) {
+                nodeInfo = nodeBll.GetModelByNodeNo(nodeNoSetting);
+                nodeUniqueId = nodeInfo._uniqueid;
+            }
+            //加载该节点上报频率信息
+            if (!TextUtils.isEmpty(nodeUniqueId)) {
+                SettingModel settingInfo = settingbll.GetSettigModel("UniqueID='" + nodeUniqueId + "' order by ID desc");
+                List<SettingInfo1Model> settingInfo1_list = new ArrayList<SettingInfo1Model>();
+                if (settingInfo != null && settingInfo._id > 0)  {
+                    settingInfo1_list = settingInfoBll.GetModelList("Type=" + settingInfo._type + " and SettingMark=" + settingInfo._settingmark + 
+                            " and Channel=" + settingInfo._chanel + "and Other=" + settingInfo._other + " and Value=" + settingInfo._value);
+                }
+                if (settingInfo1_list != null && settingInfo1_list.size() > 0) {
+                    settingInfoModel = settingInfo1_list.get(0);
+                }
+            }
+            //加载上报频率
+            List<SettingInfo1Model> settingInfo_list = settingInfoBll.GetModelList("ReportFrequency=3");
+            LoadSetting loadSetting = new LoadSetting();
+            loadSetting.Name = nodeInfo._location;
+            loadSetting.UniqueID = nodeInfo._uniqueid;
+            loadSetting.Report = settingInfoModel;
+            loadSetting.Longtude = nodeInfo._longitude;
+            loadSetting.latitude = nodeInfo._latitude;
+            loadSetting.Remark = nodeInfo._remark;
+            loadSetting.ReportList = settingInfo_list;
+            return loadSetting;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+    
+    //修改节点（名称，经纬度，上报频率等）
+    public boolean SendNodeReportFrequency(String nodeName, String uniqueid, int reportId,String longitude,String latitude,String remark){
+        try {
+            if (!TextUtils.isEmpty(uniqueid)){
+                boolean isModifyNodeSuccess = false;
+                boolean isAddSettingSuccess = false;
+                
+                //修改节点(Node)
+                NodeModel nodeModel = nodeBll.GetModelList(" UniqueID='" + uniqueid +"'").get(0);//??????????TODO TODO 为什么在ajax中使用了缓存？
+                if (null != nodeModel){
+                    if (!TextUtils.isEmpty(nodeName)){
+                        nodeModel._location = nodeName;
+                    }
+                    if (!TextUtils.isEmpty(longitude) && !TextUtils.isEmpty(latitude)){
+                        try {
+                            nodeModel._longitude = Float.parseFloat(longitude);
+                            nodeModel._latitude = Float.parseFloat(latitude);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    if (!TextUtils.isEmpty(remark)){
+                        nodeModel._remark = remark;
+                    }
+                    if (nodeBll.Update(nodeModel)) {
+                        isModifyNodeSuccess = true;
+                    }
+                }
+                
+                // 将上报频率等相关信息写入配置表（setting）
+                //加载相应的上报频率信息
+                if (!TextUtils.isEmpty(""+reportId)) {
+                    SettingInfo1Model settingInfoModel = settingInfoBll.GetModel(reportId);
+                    SettingModel settingModel = new SettingModel();
+                    if (settingInfoModel != null) {
+                        settingModel._chanel = settingInfoModel._channel;
+                        settingModel._other = settingInfoModel._other;
+                        Timestamp dt = new Timestamp(System.currentTimeMillis());
+                        settingModel._timespan = (int) dt.getTime()/1000;
+                        settingModel._sendtime = dt;
+                        settingModel._settingmark = settingInfoModel._settingmark;
+                        settingModel._type = settingInfoModel._type;
+                        settingModel._uniqueid = uniqueid;
+                        settingModel._value = (float)settingInfoModel._value;
+                        if (settingbll.Add(settingModel) != 0)
+                        {
+                            isAddSettingSuccess = true;
+                        }
+                    }
+                }
+                
+                if (isModifyNodeSuccess && isAddSettingSuccess){
+                    return true;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
     }
     
     public List<NodeView2Model> GetNodesDataByUserkeyAndType(String userkey, String nodeno, String grainsize){//详细数据 TODO
@@ -495,6 +781,41 @@ public class AjaxGetNodesDataByUserkey{
         return false;
     }
     
+    public boolean SaveControlTriggerUser(String UniqueID, int deviceNo, String selectedNodes, String conditionStr, String updateid, String userkeys){
+        ControlActionInfoModel controlActionInfo = new ControlActionInfoModel();
+        if (null != selectedNodes && selectedNodes.endsWith(",")){
+            selectedNodes = selectedNodes.substring(0,selectedNodes.length() -1);
+        }
+        if (!TextUtils.isEmpty(updateid)){
+            int id = Integer.parseInt(updateid);
+            controlActionInfo = controlActionInfoBll.GetModel(id);
+            controlActionInfo._controlname = "触发";
+            controlActionInfo._uniqueid = UniqueID;
+            controlActionInfo._deviceno = deviceNo;
+            controlActionInfo._controltype = 6;
+            controlActionInfo._collectuniqueids = selectedNodes;
+            controlActionInfo._controlcondition = conditionStr;
+            controlActionInfo._operatetime = new Timestamp(System.currentTimeMillis());
+            controlActionInfo._operate = "打开";
+            controlActionInfo._statenow = 0;
+            controlActionInfo._remark = "";
+            return controlActionInfoBll.Update(controlActionInfo);
+        } else {
+            controlActionInfo._areaid = Integer.parseInt(DataAPI.GetAreaIDsByUserKeys(userkeys));
+            controlActionInfo._controlname = "触发";
+            controlActionInfo._uniqueid = UniqueID;
+            controlActionInfo._deviceno = deviceNo;
+            controlActionInfo._controltype = 6;
+            controlActionInfo._collectuniqueids = selectedNodes;
+            controlActionInfo._controlcondition = conditionStr;
+            controlActionInfo._operatetime = new Timestamp(System.currentTimeMillis());
+            controlActionInfo._operate = "打开";
+            controlActionInfo._statenow = 0;
+            controlActionInfo._remark = "";
+            return controlActionInfoBll.Add(controlActionInfo) > 0;
+        }
+    }
+    
     private boolean updateControlActionInfoAndAddLog(ControlActionInfoModel controlActionInfo){//ControlActionInfo表 ControlLog表
         if (controlActionInfoBll.Update(controlActionInfo)) {
             List<ControlLogModel> controlLog_list = DataAPI.ConvertControlActionInfoToControlLog(controlActionInfo);
@@ -659,7 +980,50 @@ public class AjaxGetNodesDataByUserkey{
                 // TODO Auto-generated method stub
                 return lhs.DeviceNo - rhs.DeviceNo;
             }
-            
         });
+    }
+    
+    public class LoadSetting{
+        public String Name;
+        public String UniqueID;
+        public SettingInfo1Model Report;
+        public float Longtude;
+        public float latitude;
+        public String Remark;
+        public List<SettingInfo1Model> ReportList;
+    }
+    
+    ////////////////////////////////////////////////////////////////////////
+    //根据UniqueIDs，获取传感器
+    public List<SensorViewModel> GetSensorInfo(String selectednodes){
+        List<SensorViewModel> sv_list;// = new ArrayList<SensorViewModel>();
+        String[] uniquelist = null;
+        if (!TextUtils.isEmpty(selectednodes)){
+            uniquelist = selectednodes.split(",");
+        }
+        
+        //在Node表中，根据UniqueID获取NodeNo
+        if (null != uniquelist && uniquelist.length > 0) {
+            String struniqueids = ""; 
+            for (String uniqueid : uniquelist) {
+                struniqueids += "'" + uniqueid + "',";
+            }
+            struniqueids = struniqueids.substring(0, struniqueids.lastIndexOf(","));
+            String strwhere = "UniqueID in (" + struniqueids + ")";
+            List<NodeModel> nodelist = nodeBll.GetModelList(strwhere);
+            String nodeslist = ""; 
+            if (null == nodelist || nodelist.size() == 0){
+                return null;
+            }
+            for (NodeModel node : nodelist) {
+                nodeslist += node._nodeno + ",";
+            }
+            nodeslist = nodeslist.substring(0, nodeslist.lastIndexOf(","));
+            //根据Uniqueid关联的节点编号（Nodeno）查询
+            sv_list = DataAPI.GetSensorListByNodeNoString(nodeslist);
+        } else {
+            sv_list = null;
+        }
+        return sv_list;
     }
 }

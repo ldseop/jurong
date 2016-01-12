@@ -1,5 +1,7 @@
 package com.ssiot.remote.data.model.view;
 
+import net.sourceforge.jtds.jdbc.DateTime;
+
 import java.sql.Timestamp;
 
 public class NodeViewModel{

@@ -16,10 +16,13 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
 import com.ssiot.jurong.ctr.SingleCtrFrag;
+import com.ssiot.jurong.monitor.MoniDataAndChartFrag;
 import com.ssiot.jurong.monitor.MoniNodeListFrag;
+import com.ssiot.jurong.monitor.MonitorListAdapter;
 import com.ssiot.jurong.video.HCLiveFrag;
 import com.ssiot.remote.dahuavideo.DahuaLiveFrag;
 import com.ssiot.remote.data.model.view.ControlNodeViewModel;
+import com.ssiot.remote.data.model.view.NodeView2Model;
 
 public class HeaderTabFrag extends BaseFragment{
     public static final String tag = "HeaderTabFragment";
@@ -155,7 +158,7 @@ public class HeaderTabFrag extends BaseFragment{
                 bundle.putString("uniqueid", userKey);
                 bundle.putInt("currentArea", currentArea);
                 fragment.setArguments(bundle);
-//                ((MoniNodeListFrag) fragment).setDetailListener(mDetailListener);
+                ((MoniNodeListFrag) fragment).setDetailListener(mDetailListener);
                 break;
             case R.id.radiobutton_control:
                 fragment = new SingleCtrFrag();
@@ -183,16 +186,26 @@ public class HeaderTabFrag extends BaseFragment{
         return fragment;
     }
     
-//    DetailListener mDetailListener = new DetailListener() {
-//        @Override
-//        public void showDetail(int position) {
-//            FragmentTransaction transaction = fragmentManager.beginTransaction();
+    MonitorListAdapter.DetailListener mDetailListener = new MonitorListAdapter.DetailListener() {
+        @Override
+        public void showDetail(NodeView2Model n2m) {
+            FragmentTransaction transaction = fragmentManager.beginTransaction();
 //            Fragment fragment = new MoniDetailHolderFrag();
+            Fragment fragment = new MoniDataAndChartFrag();
 //            transaction.replace(R.id.detail_content, fragment);
 //            transaction.addToBackStack(null);
 //            transaction.commit();  
-//        }
-//    };
+            Bundle bundle = new Bundle();
+            bundle.putString("nodetitle", n2m._location);
+            bundle.putBoolean("status", n2m._isonline.equals("在线"));
+            bundle.putBoolean("isgprs", "GPRS".equalsIgnoreCase(n2m._onlinetype));
+            bundle.putInt("nodeno", n2m._nodeno);
+            fragment.setArguments(bundle);
+            transaction.replace(R.id.detail_content, fragment);
+            transaction.addToBackStack(null);
+            transaction.commit();  
+        }
+    };
 //    ControlDetailListener mCtrDetailListener = new ControlDetailListener() {
 //        @Override
 //        public void showDetail(int position, ControlNodeViewModel model) {

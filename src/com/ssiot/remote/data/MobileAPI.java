@@ -6,6 +6,9 @@ import android.util.Log;
 import com.ssiot.remote.data.business.SensorModifyData;
 import com.ssiot.remote.data.model.ControlNodeModel;
 import com.ssiot.remote.data.model.NodeModel;
+import com.ssiot.remote.data.model.SensorModel;
+import com.ssiot.remote.data.model.SensorModifyDataModel;
+import com.ssiot.remote.data.model.SettingModel;
 import com.ssiot.remote.data.model.view.ControlNodeViewModel;
 import com.ssiot.remote.data.model.view.NodeData;
 import com.ssiot.remote.data.model.view.NodeView2Model;
@@ -22,6 +25,7 @@ import java.util.List;
 public class MobileAPI{
     private static final String tag = "MobileAPI";
     public static SensorModifyData sensorModifyDataBll = new SensorModifyData();
+    public static com.ssiot.remote.data.business.Setting settingBll = new com.ssiot.remote.data.business.Setting();
     
     public static List<NodeView2Model> GetNodesInfoAndDataByNodenos(String nodenos){
         List<NodeView2Model> rtn_nodeViewList = new ArrayList<NodeView2Model>();
@@ -107,10 +111,8 @@ public class MobileAPI{
                     nodeView_list2.add(nodeView2);
                 }
             }
-//            dic_nodeView2.Add("在线", nodeView_list1);
-//            dic_nodeView2.Add("离线", nodeView_list2);
-            //TODO
-            
+            last_ds.close();
+
             
             List<NodeView2Model> onlineDataView_list = nodeView_list1;//dic_nodeView2["在线"];
             String onlineNodenos = "";
@@ -166,6 +168,7 @@ public class MobileAPI{
                         nodeView2._nodeData_list = nodeData_list;
                         onlineNodeView2_list.add(nodeView2);
                     }
+                    ds.close();
                 }
                 
               //将在线数据进行比较，并存储到新的List中，用于最终返回数
@@ -263,11 +266,40 @@ public class MobileAPI{
                     }
                     nodeView2._location = ds.getString("安装地点");
                     String timeStr =  ds.getString("更新时间");
-                    if (null != timeStr && timeStr.length() == 13)  {
-                        nodeView2._updatetime = Timestamp.valueOf(timeStr + ":00:00");
-                    } else if (null != timeStr) {
-                        nodeView2._updatetime = Timestamp.valueOf(timeStr);
+                    if (null != timeStr){
+                        try {
+                            switch (timeStr.length()) {
+                                case 13://逐小时lenth13
+                                    nodeView2._updatetime = Timestamp.valueOf(timeStr + ":00:00");
+                                    break;
+                                case 16://10分钟
+                                    nodeView2._updatetime = Timestamp.valueOf(timeStr + ":00");
+                                    break;
+                                case 10://日
+                                    nodeView2._updatetime = Timestamp.valueOf(timeStr + " 00:00:00");
+                                    break;
+                                case 7://
+                                    nodeView2._updatetime = Timestamp.valueOf(timeStr + "-01 00:00:00");
+                                    break;
+                                case 4:
+                                    nodeView2._updatetime = Timestamp.valueOf(timeStr + "-01-01 00:00:00");
+                                    break;
+                                    
+                                default:
+                                    nodeView2._updatetime = Timestamp.valueOf(timeStr);
+                                    break;
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        nodeView2._detailTime = timeStr;
                     }
+                    
+//                    if (null != timeStr && timeStr.length() == 13)  {
+//                        nodeView2._updatetime = Timestamp.valueOf(timeStr + ":00:00");//TODO 这个格式不规范
+//                    } else if (null != timeStr) {
+//                        nodeView2._updatetime = Timestamp.valueOf(timeStr);
+//                    }
                     if (System.currentTimeMillis() - nodeView2._updatetime.getTime() > 3600 * 1000){
                         nodeView2._isonline = "离线";
                         isOnline = "离线";
@@ -278,6 +310,7 @@ public class MobileAPI{
                     nodeView2._nodeData_list = buildNodeDataListFromResultSet(ds);
                     nodeView2_list.add(nodeView2);
                 }
+                ds.close();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -293,6 +326,7 @@ public class MobileAPI{
                 while (ds.next()) {
                     controlNodeView_list.add( DataRowToObjectModel(ds));
                 }
+                ds.close();
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -300,6 +334,36 @@ public class MobileAPI{
         }
 
         return controlNodeView_list;
+    }
+    
+    //根据传感器的名称（ShortName）和修正类型（Type）加载传感器修正数据//现只用于标定
+    public static List<SensorModifyDataModel> GetSensorModifyDataListBySensorNameAndType(String name, int type){
+        List<SensorModifyDataModel> sensorModifyDataList = new ArrayList<SensorModifyDataModel>();
+        try {
+            if (!TextUtils.isEmpty(name) && type >= 0){
+                SensorModel sensorModel = DataAPI.GetSensorModelBySensorName(name);
+                if (sensorModel._sensorno != 0){
+                    sensorModifyDataList = sensorModifyDataBll.GetModelList("SensorNo=" + sensorModel._sensorno + " and Type=" + type);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return sensorModifyDataList;
+    }
+    
+    public static SettingModel GetJiaoZhunBySensorNameAndType(String uniqueId, int type, int sensorNo, int channel){
+        int sendState = 2;//jingbo 默认的参数
+        try {
+            if (TextUtils.isEmpty(uniqueId) && sensorNo > 0 && type > 0){
+                SettingModel  settingModel = settingBll.GetSettigModel("UniqueID='" + uniqueId + "' and Type=" + type + 
+                        " and SettingMark=" + sensorNo + " and Chanel=" + channel + " and SendState=" + sendState + " order by ID desc");
+                return settingModel;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
     
     //将日期转化为整分钟的时间格式
@@ -335,13 +399,18 @@ public class MobileAPI{
                     continue;
                 
                 String value_strtmp = ds.getString(sensorname);
-                if (value_strtmp != null && !TextUtils.isEmpty(value_strtmp)) {
+                if (!TextUtils.isEmpty(value_strtmp)) {
                     NodeData nodeData = new NodeData();
                     nodeData._name = sensorname;
                     String value_str = value_strtmp.trim();
                     String dataStr = getNumberPartFromStr(value_str);
                     nodeData._data = Float.parseFloat(dataStr);
                     nodeData._unit = value_str.substring(dataStr.length(), value_str.length());
+                    nodeData_list.add(nodeData);
+                } else {//jingbo add this 空的也添加进去，在数据表里空的也需要显示 MoniDataFrag
+                    NodeData nodeData = new NodeData();
+                    nodeData._name = sensorname;
+                    nodeData._unit = null;
                     nodeData_list.add(nodeData);
                 }
             }
