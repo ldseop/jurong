@@ -145,7 +145,8 @@ public class ConSQL{
                 Log.v(tag, "---------username"+ name + " localpass:" + password + " netpass:" + passwordInServer+":end");
                 if (null != password && password.equals(passwordInServer)){
                     Log.v(tag, "~~~~~equals~~~~~~");
-                    return rs.getString("UniqueID");
+//                    return rs.getString("UniqueID");
+                    return "0909c545-422b-4c94-a085-c010e17b";
                 }
                 str.append("\n");
             }
